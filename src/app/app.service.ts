@@ -3,13 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { forkJoin, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { System } from './models/system.model';
-import { jsPlumb } from 'jsplumb';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppService {
-  jsPlumbInstance = jsPlumb.getInstance();
+  // jsPlumbInstance = jsPlumb.getInstance();
 
   constructor(private http: HttpClient,
     ) {
