@@ -1,21 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, Observable } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { System } from './models/system.model';
 import { jsPlumb } from 'jsplumb';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppService {
-  jsPlumbInstance = jsPlumb.getInstance();
 
-  constructor(private http: HttpClient,
-    ) {
-  }
+  constructor(private http: HttpClient) {}
 
-  public url: string = "http://localhost:3000"
+  public url = 'http://localhost:3000';
 
-  getSystemInfo = (system: string): Observable<System> => this.http.get<System>(`${this.url}/system/${system}`);
+  getSystemInfo = (system: string): Observable<System> =>
+    this.http.get<System>(`${this.url}/entity/system/${system}`)
 }

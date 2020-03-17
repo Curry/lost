@@ -6,10 +6,15 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatCardModule } from '@angular/material/card';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { SystemComponent } from './system/system.component';
+import { FlexLayoutModule } from '@angular/flex-layout';
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SystemComponent
   ],
   imports: [
     BrowserModule,
@@ -18,6 +23,9 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     BrowserAnimationsModule,
     MatButtonModule,
     DragDropModule,
+    MatCardModule,
+    MatDividerModule,
+    FlexLayoutModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

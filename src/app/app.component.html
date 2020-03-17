@@ -1,5 +1,10 @@
-<!-- <canvas #myCanvas width="500" height="500">
-
-</canvas> -->
-
-<div id="draw-shapes" #buttonOne mat-raised-button (click)="test()" cdkDrag (cdkDragEnded)="dragEnd($event)">text</div>
+<div fxLayout="column" *ngIf="system | async as sys">
+  <div fxLayout="row" style="justify-content: center; margin-bottom: 50px;">
+    <app-system id="1div" [system]="sys"></app-system>
+  </div>
+  <div fxLayout="row" style="justify-content: center;">
+    <app-system id="2div" [system]="sys"></app-system>
+    <app-system id="3div" [system]="sys"></app-system>
+    <app-system id="4div" [system]="sys"></app-system>
+  </div>
+</div>

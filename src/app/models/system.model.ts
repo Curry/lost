@@ -12,24 +12,28 @@ export enum Class {
   SHATTERED,
 }
 
-export type Effect = 'Magnetar' | 'Black Hole' | 'Red Giant' | 'Pulsar' | 'Wolf-Rayet' | 'Cataclysmic Variable';
+// export type Effect = 'Magnetar' | 'Black Hole' | 'Red Giant' | 'Pulsar' | 'Wolf-Rayet' | 'Cataclysmic Variable';
 
 export class Static {
   typeID: number;
   typeName: string;
   targetClass: Class;
-  targetLifetime: number;
-  targetMass: number;
-  targetRegen: number;
-  targetOneThrough: number;
+  lifetime: number;
+  maxMass: number;
+  massRegen: number;
+  maxOnePass: number;
 }
 
 export class System {
   regionID: number;
   constellationID: number;
-  solarSystemID: number;
-  solarSystemName: string;
-  security: number;
-  class: number;
+  systemID: number;
+  systemName: string;
+  effect: string;
+  security: string;
+  securityClass: string;
+  securityStatus: number;
+  trueSec: number;
+  starId: number;
   statics: Static[];
 }
