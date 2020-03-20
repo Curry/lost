@@ -1,9 +1,21 @@
 .mat-card {
-  max-width: 150px;
+  width: 110px;
+  height: 40px;
   margin: auto;
-  // margin-bottom: 50px;
 }
 
 .system-card {
   text-align: center;
+}
+
+.mat-card-content {
+  font-size: 9px!important;
+}
+
+.mat-card-title {
+  font-size: 14px!important;
+}
+
+.mat-card-subtitle {
+  font-size: 12px!important;
 }

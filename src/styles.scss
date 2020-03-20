@@ -25,3 +25,31 @@ html {
   height: 25px!important;
   width: 25px!important;
 }
+
+.jtk-connector { z-index:4; }
+.jtk-endpoint { z-index:5; }
+.jtk-overlay { z-index:6; }
+
+.whcrit path {
+  stroke: red;
+  stroke-width: 2;
+}
+
+.whred path {
+  stroke: yellow;
+  stroke-width: 2;
+}
+
+.whnorm path {
+  stroke: green;
+  stroke-width: 2;
+}
+
+.tooltip-font {
+  font-size: 20px!important;
+}
+
+mat-card:hover{
+  cursor: pointer;
+  background: #b4b4b433;
+}

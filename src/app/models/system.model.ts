@@ -36,4 +36,6 @@ export class System {
   trueSec: number;
   starId: number;
   statics: Static[];
+  nickName?: string;
+  connectsTo?: string[];
 }
