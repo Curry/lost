@@ -17,7 +17,7 @@ export enum Class {
 export class Static {
   typeID: number;
   typeName: string;
-  targetClass: Class;
+  targetClass: number;
   lifetime: number;
   maxMass: number;
   massRegen: number;
@@ -38,4 +38,41 @@ export class System {
   statics: Static[];
   nickName?: string;
   connectsTo?: string[];
+}
+
+export class SystemModel {
+  regionID: number;
+  constellationID: number;
+  systemID: number;
+  systemName: string;
+  starId: number;
+  security: string;
+  trueSec: number;
+  securityStatus: number;
+  securityClass: string;
+  effect: string;
+  statics: Static[];
+}
+
+export class ConnectionNode {
+  system: SystemModel;
+  children?: ConnectionNode[];
+}
+
+export class ConnectionModel {
+  id: number;
+  mapId: number;
+  created: Date;
+  updated: Date;
+  systemId: number;
+  linkedSystemId: number;
+  system: SystemModel;
+  linkedSystem: SystemModel;
+}
+
+export class MapModel {
+  mapId: number;
+  created: Date;
+  updated: Date;
+  connection: ConnectionNode;
 }
