@@ -16,7 +16,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor(private service: AppService) {}
 
   ngOnInit() {
-    this.system = this.service.getSystemInfo('J163923');
   }
 
   ngAfterViewInit() {

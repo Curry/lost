@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener, AfterContentInit } from '@angular/core';
 import { Observable, iif, of, from } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { System } from '../models/system.model';
@@ -21,6 +21,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
   ) {}
 
+
+  @HostListener('window:resize')
+  onResize = () => {
+    this.service.redraw();
+  }
+
   ngOnInit() {
     this.route.queryParamMap.pipe(
       map(val => val.get('code')),
@@ -34,11 +40,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     ).subscribe(() => {
       this.router.navigate(['']);
     });
-    this.system = this.service.getSystemInfo('J163923');
+    this.system = this.service.getSystems(1);
   }
 
   ngAfterViewInit() {
-    // this.service.generateConnection('31000714', '30004583');
+    this.service.getConnections(1).subscribe();
   }
 
   setMode = () => {

@@ -25,6 +25,7 @@ export class Static {
 }
 
 export class System {
+  id: number;
   regionID: number;
   constellationID: number;
   systemID: number;
@@ -36,8 +37,7 @@ export class System {
   trueSec: number;
   starId: number;
   statics: Static[];
-  nickName?: string;
-  connectsTo?: string[];
+  alias: string;
 }
 
 export class SystemModel {
@@ -59,15 +59,13 @@ export class ConnectionNode {
   children?: ConnectionNode[];
 }
 
-export class ConnectionModel {
+export class Connection {
   id: number;
   mapId: number;
   created: Date;
   updated: Date;
-  systemId: number;
-  linkedSystemId: number;
-  system: SystemModel;
-  linkedSystem: SystemModel;
+  source: number;
+  target: number;
 }
 
 export class MapModel {

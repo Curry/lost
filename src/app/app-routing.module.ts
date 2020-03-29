@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { RedirectGuard } from './redirect.guard';
+import { MapComponent } from './map/map.component';
 
 const scopes = [
   'esi-location.read_location.v1',
@@ -35,6 +36,10 @@ const routes: Routes = [
     data: {
       externalUrl: esiSSOUrl,
     },
+  },
+  {
+    path: 'test',
+    component: MapComponent
   },
 ];
 

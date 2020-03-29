@@ -1,7 +1,7 @@
-<mat-card [id]="system.systemID" class="system-card" [matTooltip]="system.systemName" matTooltipClass="tooltip-font"
+<mat-card [id]="system.id" class="system-card" [matTooltip]="system.systemName" matTooltipClass="tooltip-font"
   matTooltipPosition="after" (click)="onClick($event.currentTarget)">
   <mat-card-header style="justify-content: center;">
-    <mat-card-subtitle>{{system.nickName || system.systemName }} // {{system.security}}</mat-card-subtitle>
+    <mat-card-subtitle>{{system.alias || system.systemName }} // {{system.security}}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     {{getStatics()}}

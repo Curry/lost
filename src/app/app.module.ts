@@ -16,6 +16,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { StoreModule } from '@ngrx/store';
 import { HomeComponent } from './home/home.component';
 import { RedirectGuard } from './redirect.guard';
@@ -37,6 +38,7 @@ import { MapComponent } from './map/map.component';
     MatIconModule,
     MatButtonToggleModule,
     MatSlideToggleModule,
+    MatSidenavModule,
     StoreModule.forRoot({}, {}),
   ],
   providers: [RedirectGuard],
