@@ -1,9 +1,21 @@
-<mat-sidenav-container class="example-container">
-  <mat-sidenav #sidenav mode="side" >
-    Sidenav content
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <p><button mat-button (click)="sidenav.toggle()">sidenav.toggle()</button></p>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+<div id='containerdiv' fxLayout="column" *ngIf="system | async as sys">
+  <div fxLayout="row">
+    <div class="system-container" fxLayout="row" fxFlex>
+      <app-system [system]="sys[0]"></app-system>
+    </div>
+  </div>
+  <div fxLayout="row">
+    <div class="system-container" fxLayout="row" fxFlex>
+      <app-system [system]="sys[1]"></app-system>
+      <app-system [system]="sys[2]"></app-system>
+    </div>
+  </div>
+  <div fxLayout="row">
+    <div class="system-container" fxLayout="row" fxFlex>
+      <app-system [system]="sys[3]"></app-system>
+      <app-system [system]="sys[4]"></app-system>
+    </div>
+    <div class="system-container" fxLayout="row" fxFlex>
+    </div>
+  </div>
+</div>

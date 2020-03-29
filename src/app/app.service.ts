@@ -1,21 +1,21 @@
-import { Injectable, HostListener } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, from } from 'rxjs';
-import { System, Connection, MapModel } from './models/system.model';
+import { of, iif, Subject, ReplaySubject } from 'rxjs';
+import { System, Connection } from './models/system.model';
 import { jsPlumbInstance, jsPlumb } from 'jsplumb';
 import { ESIToken } from './models/models';
-import { tap, map, mergeMap } from 'rxjs/operators';
+import { tap, delay, skip, flatMap, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppService {
   constructor(private http: HttpClient) {
-    this.jsPlumbInstance = jsPlumb.getInstance();
+    this.jsPlumbInstance = jsPlumb.getInstance({ Container: 'containerdiv' });
     this.mode = false;
   }
 
-  private source: HTMLElement;
+  length = 0;
   private sourceId: string;
   private jsPlumbInstance: jsPlumbInstance;
   private options = {
@@ -31,6 +31,8 @@ export class AppService {
 
   public mode: boolean;
   public url = 'http://localhost:3000';
+
+  subject: ReplaySubject<boolean> = new ReplaySubject();
 
   redraw = () => this.jsPlumbInstance.repaintEverything();
 
@@ -58,40 +60,42 @@ export class AppService {
     if (this.mode) {
       if (!this.sourceId) {
         this.sourceId = systemNode.id;
+        console.log(this.sourceId);
       } else if (this.sourceId === systemNode.id) {
         this.sourceId = undefined;
       } else {
-        this.http
-          .post(`${this.url}/map/1/connection/add`, {
-            source: this.source.id,
+        iif(
+          () => this.generateConnection(this.sourceId, systemNode.id),
+          this.http.post(`${this.url}/map/1/connection/add`, {
+            source: this.sourceId,
             target: systemNode.id,
-          })
-          .pipe(
-            tap(() => this.generateConnection(this.source.id, systemNode.id)),
-          )
-          .subscribe(() => {
-            this.source = undefined;
-          });
+          }),
+          of({}),
+        ).subscribe(() => {
+          this.sourceId = undefined;
+        });
       }
     }
   };
 
   generateConnection = (sourceId: string, targetId: string) => {
-    if (
-      this.jsPlumbInstance.select({
-        source: [sourceId, targetId],
-        target: [sourceId, targetId],
-        // @ts-ignore
-      }).length === 0
-    ) {
-      this.jsPlumbInstance.connect(
-        {
-          source: sourceId,
-          target: targetId,
-        },
-        this.options,
-      );
-      console.log(`Linking ${sourceId} and ${targetId}`);
-    }
+      if (
+        this.jsPlumbInstance.select({
+          source: [sourceId, targetId],
+          target: [sourceId, targetId],
+          // @ts-ignore
+        }).length === 0
+      ) {
+        this.jsPlumbInstance.connect(
+          {
+            source: sourceId,
+            target: targetId,
+          },
+          this.options,
+        );
+        console.log(`Linking ${sourceId} and ${targetId}`);
+        return true;
+      }
+      return false;
   };
 }
