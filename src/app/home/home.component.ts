@@ -10,34 +10,13 @@ import { ESIToken } from '../models/models';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit {
-  constructor(
-    private service: AppService,
-    private router: Router,
-    private route: ActivatedRoute,
-  ) {}
+export class HomeComponent {
+  constructor(private service: AppService) {}
 
   @HostListener('window:resize')
   onResize = () => {
     this.service.redraw();
   };
-
-  ngOnInit() {
-    this.route.queryParamMap
-      .pipe(
-        map(val => val.get('code')),
-        mergeMap((val: string) =>
-          iif(
-            () => !!val,
-            this.service.getEsiToken(val),
-            of(undefined as ESIToken),
-          ),
-        ),
-      )
-      .subscribe(() => {
-        this.router.navigate(['']);
-      });
-  }
 
   setMode = () => {
     this.service.mode = !this.service.mode;
