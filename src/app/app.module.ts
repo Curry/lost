@@ -5,22 +5,20 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatCardModule } from '@angular/material/card';
-import { DragDropModule } from '@angular/cdk/drag-drop';
 import { SystemComponent } from './system/system.component';
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { StoreModule } from '@ngrx/store';
 import { HomeComponent } from './home/home.component';
 import { RedirectGuard } from './redirect.guard';
 import { MapComponent } from './map/map.component';
+import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular';
+import { HttpLinkModule, HttpLink } from 'apollo-angular-link-http';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { WebSocketLink } from 'apollo-link-ws';
+import { split } from 'apollo-link';
+import { getMainDefinition } from 'apollo-utilities';
+import { OperationDefinitionNode } from 'graphql';
+import { MaterialModule } from './material.module';
+
 @NgModule({
   declarations: [AppComponent, SystemComponent, HomeComponent, MapComponent],
   imports: [
@@ -28,20 +26,37 @@ import { MapComponent } from './map/map.component';
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    MatButtonModule,
-    DragDropModule,
-    MatCardModule,
-    MatDividerModule,
-    FlexLayoutModule,
-    MatTooltipModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonToggleModule,
-    MatSlideToggleModule,
-    MatSidenavModule,
+    MaterialModule,
+    ApolloModule,
+    HttpLinkModule,
     StoreModule.forRoot({}, {}),
   ],
-  providers: [RedirectGuard],
+  providers: [
+    RedirectGuard,
+    {
+      provide: APOLLO_OPTIONS,
+      useFactory: (httpLink: HttpLink) => {
+        return {
+          cache: new InMemoryCache(),
+          link: split(
+            ({ query }) =>
+              (getMainDefinition(query) as OperationDefinitionNode)
+                .operation === 'subscription',
+            new WebSocketLink({
+              uri: 'ws://localhost:3000/graphql',
+              options: {
+                reconnect: true,
+              },
+            }),
+            httpLink.create({
+              uri: 'http://localhost:3000/graphql',
+            }),
+          ),
+        };
+      },
+      deps: [HttpLink],
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

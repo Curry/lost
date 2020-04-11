@@ -30,13 +30,13 @@ export class MapComponent implements OnInit, AfterViewInit {
   };
 
   ngOnInit() {
-    this.system = this.service.getSystems(1);
+    // this.system = this.service.getSystems(1);
   }
 
   ngAfterViewInit() {
     this.systems.changes
-      .pipe(mergeMap(() => this.service.getConnections(1)))
-      .subscribe();
+      // .pipe(mergeMap(() => this.service.getConnections(1)))
+      // .subscribe();
   }
 
   setMode = () => {

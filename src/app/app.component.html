@@ -19,4 +19,12 @@
   <div fxLayout="row">
   </div>
 </div> -->
-<router-outlet></router-outlet>
+<!-- <router-outlet></router-outlet> -->
+<h1>Feed:</h1>
+<div *ngIf="stuff | async as items">
+  <ul>
+
+    <li *ngFor="let item of items">{{ item.id }}</li>
+  </ul>
+</div>
+
