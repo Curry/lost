@@ -1,23 +1,34 @@
-import { Component, Input } from '@angular/core';
-import { System } from '../models/system.model';
+import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 import { AppService } from '../app.service';
+import { Node } from '../graphql';
 
 @Component({
   selector: 'app-system',
   templateUrl: './system.component.html',
   styleUrls: ['./system.component.scss'],
-  host: { '[id]': 'system.id' },
 })
-export class SystemComponent {
+export class SystemComponent implements AfterViewInit {
   @Input()
-  system: System;
+  node: Node;
 
-  constructor(private service: AppService) {}
+  constructor(private service: AppService) {
+  }
 
+  ngAfterViewInit() {
+    this.service.draggable(this.node.id);
+  }
   getStatics = () =>
-    this.system.statics.map(val => val.typeName.substring(9)).join('\t');
+    this.node.system.statics.map(val => val.name).join('\t');
 
   onClick = (element: HTMLElement) => {
-    this.service.createConnection(element);
+    this.service.connect(element, true);
   };
+
+  onRClick = (element: HTMLElement) => {
+    this.service.connect(element, false);
+  }
+
+  redraw = () => {
+    // this.service.redraw();
+  }
 }

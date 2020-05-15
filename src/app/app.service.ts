@@ -1,16 +1,30 @@
 import { Injectable } from '@angular/core';
-import { of, iif, Subject, ReplaySubject } from 'rxjs';
-import { jsPlumbInstance, jsPlumb } from 'jsplumb';
-import { Apollo, QueryRef } from 'apollo-angular';
-import gql from 'graphql-tag';
-import { tap } from 'rxjs/operators';
+import { of, iif, ReplaySubject } from 'rxjs';
+import { jsPlumbInstance, jsPlumb, Connections } from 'jsplumb';
+import { tap, map, mergeMap } from 'rxjs/operators';
+import {
+  Node,
+  NodesGQL,
+  ConnectionsGQL,
+  AddConnectionGQL,
+  RemoveConnectionGQL,
+  WatchNodesGQL,
+  UpdatesGQL,
+  Connection,
+} from './graphql';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppService {
-  commentsQuery: QueryRef<any>;
-  constructor(private apollo: Apollo) {
+  constructor(
+    private nodes: NodesGQL,
+    private connections: ConnectionsGQL,
+    private addConnection: AddConnectionGQL,
+    private removeConnection: RemoveConnectionGQL,
+    private watchGQL: WatchNodesGQL,
+    private updates: UpdatesGQL,
+  ) {
     this.jsPlumbInstance = jsPlumb.getInstance({ Container: 'containerdiv' });
     this.mode = false;
   }
@@ -35,44 +49,70 @@ export class AppService {
 
   redraw = () => this.jsPlumbInstance.repaintEverything();
 
-  // getSystems = (mapId: number) =>
-  //   this.http.get<System[]>(`${this.url}/map/${mapId}/systems`);
+  draggable = (id) => this.jsPlumbInstance.setDraggable(id, true);
 
-  // getConnections = (mapId: number) =>
-  //   this.http
-  //     .get<Connection[]>(`${this.url}/map/${mapId}/connections`)
-  //     .pipe(
-  //       tap((conns) =>
-  //         conns.forEach((conn) =>
-  //           this.generateConnection(
-  //             conn.source.toString(),
-  //             conn.target.toString(),
-  //           ),
-  //         ),
-  //       ),
-  //     );
+  subscribeNodes = (mapId: number) => this.watchGQL.subscribe({ map: mapId })
 
-  createConnection = (systemNode: HTMLElement) => {
-    if (this.mode) {
-      if (!this.sourceId) {
-        this.sourceId = systemNode.id;
-        console.log(this.sourceId);
-      } else if (this.sourceId === systemNode.id) {
+  getNodesByMapId = (mapId: number) =>
+    this.nodes
+      .fetch({ map: mapId })
+      .pipe(map((val) => val.data.nodes as Node[]));
+
+  watchChanges = (mapId: number) => {
+    const queryRef = this.updates.watch({ map: mapId })
+    queryRef.startPolling(1000);
+    return queryRef.valueChanges.pipe(
+      map(val => {
+        this.regenerate(val.data.connections);
+        return val.data.nodes as Node[];
+      }),
+    )
+  }
+
+  getConnectionsByMapId = (mapId: number) =>
+    this.connections.fetch({ map: mapId }).pipe(
+      tap((conns) => this.regenerate(conns.data.connections))
+    );
+
+  connect = (systemNode: HTMLElement, attach: boolean) => {
+    this.jsPlumbInstance.setDraggable(systemNode.id, true);
+    if (!this.sourceId) {
+      this.sourceId = systemNode.id;
+    } else if (this.sourceId === systemNode.id) {
+      this.sourceId = undefined;
+    } else {
+      iif(
+        () => attach,
+        this.addConnection.mutate({
+          map: 1,
+          source: this.sourceId,
+          target: systemNode.id,
+        }),
+        this.removeConnection.mutate({
+          map: 1,
+          source: this.sourceId,
+          target: systemNode.id,
+        })
+      ).pipe(
+        mergeMap(() => this.getConnectionsByMapId(1))
+      )
+      .subscribe(() => {
         this.sourceId = undefined;
-      } else {
-        iif(
-          () => this.generateConnection(this.sourceId, systemNode.id),
-          // this.http.post(`${this.url}/map/1/connection/add`, {
-          //   source: this.sourceId,
-          //   target: systemNode.id,
-          // }),
-          of({}),
-        ).subscribe(() => {
-          this.sourceId = undefined;
-        });
-      }
+      });
     }
-  };
+  }
+
+  regenerate = (connections: Connection[]) => {
+    this.redraw();
+    connections.forEach(conn => {
+      this.generateConnection(conn.source, conn.target)
+    });
+    this.jsPlumbInstance.select().each((val) => {
+      if (connections.filter(conn => conn.source === val.sourceId && conn.target === val.targetId).length === 0) {
+        this.jsPlumbInstance.deleteConnection(val);
+      }
+    });
+  }
 
   generateConnection = (sourceId: string, targetId: string) => {
     if (
@@ -94,4 +134,17 @@ export class AppService {
     }
     return false;
   };
+
+  deleteConnection = (sourceId: string, targetId: string) => {
+    const connections = this.jsPlumbInstance.select({
+      source: [sourceId, targetId],
+      target: [sourceId, targetId],
+    });
+    // @ts-ignore
+    if (connections.length > 0) {
+      connections.each(conn => this.jsPlumbInstance.deleteConnection(conn));
+      return true;
+    }
+    return false;
+  }
 }

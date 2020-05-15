@@ -107,6 +107,9 @@ export enum Effect {
 export type Mutation = {
    __typename?: 'Mutation';
   addCorporation: Corporation;
+  addConnection: Connection;
+  removeConnection: Connection;
+  addNode: Node;
 };
 
 
@@ -114,10 +117,31 @@ export type MutationAddCorporationArgs = {
   corporationData: CorporationInput;
 };
 
+
+export type MutationAddConnectionArgs = {
+  target: Scalars['String'];
+  source: Scalars['String'];
+  map: Scalars['Float'];
+};
+
+
+export type MutationRemoveConnectionArgs = {
+  target: Scalars['String'];
+  source: Scalars['String'];
+  map: Scalars['Float'];
+};
+
+
+export type MutationAddNodeArgs = {
+  system: Scalars['Float'];
+  map: Scalars['Float'];
+};
+
 export type Node = {
    __typename?: 'Node';
   id: Scalars['String'];
-  mapId: Scalars['Int'];
+  mapId: Scalars['Float'];
+  systemId: Scalars['Float'];
   system: System;
 };
 
@@ -216,6 +240,12 @@ export type Ship = {
 export type Subscription = {
    __typename?: 'Subscription';
   corpChanged: Corporation;
+  nodeAdded: Node;
+};
+
+
+export type SubscriptionNodeAddedArgs = {
+  map: Scalars['Float'];
 };
 
 export type System = {
@@ -226,7 +256,6 @@ export type System = {
   systemName: Scalars['String'];
   security?: Maybe<Scalars['String']>;
   trueSec: Scalars['Float'];
-  securityClass?: Maybe<Scalars['String']>;
   class: Class;
   effect?: Maybe<Effect>;
   statics: Array<Wormhole>;
@@ -257,13 +286,101 @@ export type NodesQuery = (
     & Pick<Node, 'id' | 'mapId'>
     & { system: (
       { __typename?: 'System' }
+      & Pick<System, 'id' | 'regionId' | 'constellationId' | 'systemName' | 'class' | 'effect' | 'trueSec'>
+      & { statics: Array<(
+        { __typename?: 'Wormhole' }
+        & Pick<Wormhole, 'id' | 'name' | 'sourceClasses' | 'targetClass' | 'lifetime' | 'maxMass' | 'massRegen' | 'maxOnePass' | 'scanStrength'>
+      )> }
+    ) }
+  )> }
+);
+
+export type ConnectionsQueryVariables = {
+  map: Scalars['Float'];
+};
+
+
+export type ConnectionsQuery = (
+  { __typename?: 'Query' }
+  & { connections: Array<(
+    { __typename?: 'Connection' }
+    & Pick<Connection, 'id' | 'mapId' | 'source' | 'target' | 'createdAt' | 'updatedAt'>
+  )> }
+);
+
+export type UpdatesQueryVariables = {
+  map: Scalars['Float'];
+};
+
+
+export type UpdatesQuery = (
+  { __typename?: 'Query' }
+  & { connections: Array<(
+    { __typename?: 'Connection' }
+    & Pick<Connection, 'id' | 'mapId' | 'source' | 'target' | 'createdAt' | 'updatedAt'>
+  )>, nodes: Array<(
+    { __typename?: 'Node' }
+    & Pick<Node, 'id' | 'mapId'>
+    & { system: (
+      { __typename?: 'System' }
+      & Pick<System, 'id' | 'regionId' | 'constellationId' | 'systemName' | 'class' | 'effect' | 'trueSec'>
+      & { statics: Array<(
+        { __typename?: 'Wormhole' }
+        & Pick<Wormhole, 'id' | 'name' | 'sourceClasses' | 'targetClass' | 'lifetime' | 'maxMass' | 'massRegen' | 'maxOnePass' | 'scanStrength'>
+      )> }
+    ) }
+  )> }
+);
+
+export type AddConnectionMutationVariables = {
+  map: Scalars['Float'];
+  source: Scalars['String'];
+  target: Scalars['String'];
+};
+
+
+export type AddConnectionMutation = (
+  { __typename?: 'Mutation' }
+  & { addConnection: (
+    { __typename?: 'Connection' }
+    & Pick<Connection, 'id'>
+  ) }
+);
+
+export type RemoveConnectionMutationVariables = {
+  map: Scalars['Float'];
+  source: Scalars['String'];
+  target: Scalars['String'];
+};
+
+
+export type RemoveConnectionMutation = (
+  { __typename?: 'Mutation' }
+  & { removeConnection: (
+    { __typename?: 'Connection' }
+    & Pick<Connection, 'id'>
+  ) }
+);
+
+export type WatchNodesSubscriptionVariables = {
+  map: Scalars['Float'];
+};
+
+
+export type WatchNodesSubscription = (
+  { __typename?: 'Subscription' }
+  & { nodeAdded: (
+    { __typename?: 'Node' }
+    & Pick<Node, 'id' | 'mapId'>
+    & { system: (
+      { __typename?: 'System' }
       & Pick<System, 'id' | 'systemName' | 'class' | 'trueSec'>
       & { statics: Array<(
         { __typename?: 'Wormhole' }
         & Pick<Wormhole, 'id' | 'name' | 'sourceClasses' | 'targetClass' | 'lifetime' | 'maxMass' | 'massRegen' | 'maxOnePass'>
       )> }
     ) }
-  )> }
+  ) }
 );
 
 export const NodesDocument = gql`
@@ -273,9 +390,138 @@ export const NodesDocument = gql`
     mapId
     system {
       id
+      regionId
+      constellationId
       systemName
       class
+      effect
+      trueSec
+      statics {
+        id
+        name
+        sourceClasses
+        targetClass
+        lifetime
+        maxMass
+        massRegen
+        maxOnePass
+        scanStrength
+      }
+    }
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class NodesGQL extends Apollo.Query<NodesQuery, NodesQueryVariables> {
+    document = NodesDocument;
+    
+  }
+export const ConnectionsDocument = gql`
+    query Connections($map: Float!) {
+  connections(map: $map) {
+    id
+    mapId
+    source
+    target
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class ConnectionsGQL extends Apollo.Query<ConnectionsQuery, ConnectionsQueryVariables> {
+    document = ConnectionsDocument;
+    
+  }
+export const UpdatesDocument = gql`
+    query Updates($map: Float!) {
+  connections: connections(map: $map) {
+    id
+    mapId
+    source
+    target
+    createdAt
+    updatedAt
+  }
+  nodes: nodes(map: $map) {
+    id
+    mapId
+    system {
       id
+      regionId
+      constellationId
+      systemName
+      class
+      effect
+      trueSec
+      statics {
+        id
+        name
+        sourceClasses
+        targetClass
+        lifetime
+        maxMass
+        massRegen
+        maxOnePass
+        scanStrength
+      }
+    }
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class UpdatesGQL extends Apollo.Query<UpdatesQuery, UpdatesQueryVariables> {
+    document = UpdatesDocument;
+    
+  }
+export const AddConnectionDocument = gql`
+    mutation AddConnection($map: Float!, $source: String!, $target: String!) {
+  addConnection(map: $map, source: $source, target: $target) {
+    id
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class AddConnectionGQL extends Apollo.Mutation<AddConnectionMutation, AddConnectionMutationVariables> {
+    document = AddConnectionDocument;
+    
+  }
+export const RemoveConnectionDocument = gql`
+    mutation RemoveConnection($map: Float!, $source: String!, $target: String!) {
+  removeConnection(map: $map, source: $source, target: $target) {
+    id
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class RemoveConnectionGQL extends Apollo.Mutation<RemoveConnectionMutation, RemoveConnectionMutationVariables> {
+    document = RemoveConnectionDocument;
+    
+  }
+export const WatchNodesDocument = gql`
+    subscription WatchNodes($map: Float!) {
+  nodeAdded(map: $map) {
+    id
+    mapId
+    system {
+      id
+      systemName
+      class
       trueSec
       statics {
         id
@@ -295,7 +541,7 @@ export const NodesDocument = gql`
   @Injectable({
     providedIn: 'root'
   })
-  export class NodesGQL extends Apollo.Query<NodesQuery, NodesQueryVariables> {
-    document = NodesDocument;
+  export class WatchNodesGQL extends Apollo.Subscription<WatchNodesSubscription, WatchNodesSubscriptionVariables> {
+    document = WatchNodesDocument;
     
   }

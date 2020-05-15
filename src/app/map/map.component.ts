@@ -7,10 +7,10 @@ import {
   QueryList,
 } from '@angular/core';
 import { Observable } from 'rxjs';
-import { System } from '../models/system.model';
 import { AppService } from '../app.service';
 import { SystemComponent } from '../system/system.component';
 import { mergeMap } from 'rxjs/operators';
+import { Node } from '../graphql';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -19,7 +19,7 @@ import { mergeMap } from 'rxjs/operators';
 export class MapComponent implements OnInit, AfterViewInit {
   @ViewChildren(SystemComponent) systems!: QueryList<SystemComponent>;
 
-  system: Observable<System[]>;
+  system: Observable<Node[]>;
   source: string;
 
   constructor(private service: AppService) {}
@@ -30,16 +30,21 @@ export class MapComponent implements OnInit, AfterViewInit {
   };
 
   ngOnInit() {
-    // this.system = this.service.getSystems(1);
+    this.system = this.service.watchChanges(1);
   }
 
   ngAfterViewInit() {
     this.systems.changes
-      // .pipe(mergeMap(() => this.service.getConnections(1)))
-      // .subscribe();
+      .pipe(mergeMap(() => this.service.getConnectionsByMapId(1)))
+      .subscribe();
   }
 
   setMode = () => {
     this.service.mode = !this.service.mode;
   };
+
+  redraw = () => {
+    console.log('potato');
+    this.service.redraw();
+  }
 }

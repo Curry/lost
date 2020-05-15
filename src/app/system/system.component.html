@@ -1,7 +1,7 @@
-<mat-card [id]="system.id" class="system-card" [matTooltip]="system.systemName" matTooltipClass="tooltip-font"
-  matTooltipPosition="after" (click)="onClick($event.currentTarget)">
+<mat-card [id]="node.id" class="system-card" [matTooltip]="node.system.systemName" matTooltipClass="tooltip-font"
+  matTooltipPosition="after" (click)="onClick($event.currentTarget)" (contextmenu)="onRClick($event.currentTarget)" oncontextmenu="return false" cdkDrag (cdkDragMoved)="redraw()">
   <mat-card-header style="justify-content: center;">
-    <mat-card-subtitle>{{system.alias || system.systemName }} // {{system.security}}</mat-card-subtitle>
+    <mat-card-subtitle>{{node.system.systemName }} // {{node.system.security}}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     {{getStatics()}}

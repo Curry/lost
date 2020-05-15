@@ -1,21 +1,19 @@
-<div id='containerdiv' fxLayout="column" *ngIf="system | async as sys">
+<!-- <div id='containerdiv' class="outer-container" fxLayout="column" *ngIf="system | async as sys">
   <div fxLayout="row">
-    <div class="system-container" fxLayout="row" fxFlex>
-      <app-system [system]="sys[0]"></app-system>
+    <div class="system-container" fxLayout="row" fxFlex *ngFor="let sy of sys">
+      <app-system [node]="sy"></app-system>
     </div>
   </div>
   <div fxLayout="row">
     <div class="system-container" fxLayout="row" fxFlex>
-      <app-system [system]="sys[1]"></app-system>
-      <app-system [system]="sys[2]"></app-system>
+      <app-system [node]="sys[1]"></app-system>
+      <app-system [node]="sys[2]"></app-system>
     </div>
   </div>
-  <div fxLayout="row">
-    <div class="system-container" fxLayout="row" fxFlex>
-      <app-system [system]="sys[3]"></app-system>
-      <app-system [system]="sys[4]"></app-system>
-    </div>
-    <div class="system-container" fxLayout="row" fxFlex>
-    </div>
+</div> -->
+
+<!-- <div *ngIf="system | async as sys">
+  <div *ngFor="let sy of sys">
+    <app-system [node]="sy"></app-system>
   </div>
-</div>
+</div> -->
